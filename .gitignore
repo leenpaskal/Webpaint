@@ -1,0 +1,78 @@
+# ──────────────────────────────────────────────
+# Webpaint monorepo — root .gitignore
+# Subprojects (webpaint-web, webpaint-mobile) keep
+# their own .gitignore for tool-specific entries.
+# ──────────────────────────────────────────────
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# Build output
+.next/
+out/
+build/
+dist/
+web-build/
+
+# Expo / React Native
+.expo/
+expo-env.d.ts
+.metro-health-check*
+.kotlin/
+# generated native projects
+webpaint-mobile/ios/
+webpaint-mobile/android/
+
+# Next.js
+next-env.d.ts
+
+# TypeScript
+*.tsbuildinfo
+
+# Testing
+coverage/
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p8
+*.p12
+*.jks
+*.mobileprovision
+
+# Logs & debug
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Deploy
+.vercel
+
+# Editors / IDE
+.idea/
+*.swp
+**/.claude/settings.local.json
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+
+# Misc
+*.orig.*
