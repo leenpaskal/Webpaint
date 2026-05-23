@@ -7,6 +7,7 @@
 
 import "server-only";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import {
   SESSION_COOKIE_NAME,
   SESSION_MAX_AGE_SECONDS,
@@ -64,4 +65,15 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     name: payload.name,
     role: payload.role,
   };
+}
+
+/**
+ * Resolve the current user or bounce to /login. Use in server components,
+ * route handlers and server actions to defend against unauthenticated calls
+ * that bypass middleware.
+ */
+export async function requireUser(): Promise<CurrentUser> {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+  return user;
 }
