@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { requireUser } from "@/lib/auth/session";
 import { countClients } from "@/lib/clients/client-service";
+import { countUnpaidInvoices } from "@/lib/invoices/invoice-service";
 import { countOpenTasks } from "@/lib/tasks/task-service";
 
 export const metadata: Metadata = {
@@ -14,9 +15,12 @@ export default async function DashboardPage() {
 
   // The Clients tile leaks total customer count, so don't fetch it for
   // portal client accounts.
-  const [clientCount, openTaskCount] = await Promise.all([
+  const [clientCount, openTaskCount, unpaidInvoiceCount] = await Promise.all([
     isClient ? Promise.resolve(0) : countClients(),
     countOpenTasks({
+      clientId: isClient ? user.clientId : null,
+    }),
+    countUnpaidInvoices({
       clientId: isClient ? user.clientId : null,
     }),
   ]);
@@ -60,7 +64,20 @@ export default async function DashboardPage() {
           }
           href="/dashboard/tasks"
         />
-        <StatCard title="Unpaid invoices" value="—" hint="Coming soon" />
+        <StatCard
+          title="Unpaid invoices"
+          value={String(unpaidInvoiceCount)}
+          hint={
+            unpaidInvoiceCount === 0
+              ? isClient
+                ? "All settled"
+                : "Nothing outstanding"
+              : isClient
+                ? "Open invoices"
+                : "Chase payment"
+          }
+          href="/dashboard/invoices?status=unpaid"
+        />
       </div>
     </div>
   );

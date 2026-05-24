@@ -19,6 +19,7 @@ const ITEMS: readonly Item[] = [
     roles: ["admin", "manager"],
   },
   { href: "/dashboard/tasks", label: "Tasks" },
+  { href: "/dashboard/invoices", label: "Invoices" },
 ];
 
 export default function Sidebar({ role }: { role: Role }) {

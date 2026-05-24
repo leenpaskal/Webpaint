@@ -218,6 +218,11 @@ export const invoices = pgTable("invoices", {
   total: numeric("total", { precision: 12, scale: 2 }).notNull().default("0"),
   issuedAt: date("issued_at"),
   dueAt: date("due_at"),
+  // Uploaded invoice document. `pdfPath` is the storage-relative file name
+  // (the storage layer owns the actual location); `pdfOriginalName` keeps
+  // the user-facing filename for download.
+  pdfPath: varchar("pdf_path", { length: 500 }),
+  pdfOriginalName: varchar("pdf_original_name", { length: 255 }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
+import DatePicker from "@/components/ui/DatePicker";
 import type { ClientTaskFormState } from "@/app/actions/tasks";
 import { createClientTaskAction } from "@/app/actions/tasks";
 import type { ClientTaskInput } from "@/lib/tasks/task-constants";
@@ -45,14 +46,22 @@ export default function ClientTaskForm() {
         placeholder="Add context, links, screenshots or anything that helps…"
       />
 
-      <Field
+      <FieldShell
         id="dueDate"
-        name="dueDate"
         label="Due date"
-        type="date"
-        defaultValue={values.dueDate ?? ""}
         error={state.fieldErrors?.dueDate}
-      />
+      >
+        <DatePicker
+          id="dueDate"
+          name="dueDate"
+          defaultValue={values.dueDate ?? ""}
+          placeholder="Pick a due date"
+          error={Boolean(state.fieldErrors?.dueDate)}
+          aria-describedby={
+            state.fieldErrors?.dueDate ? "dueDate-error" : undefined
+          }
+        />
+      </FieldShell>
 
       <p className="text-xs text-zinc-500 dark:text-zinc-400">
         Status and priority will be set by the Webpaint team once they pick
