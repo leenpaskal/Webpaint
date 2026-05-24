@@ -1,28 +1,26 @@
 # Netlify config for the Expo web build.
 #
-# In Netlify's site settings, set:
-#   - Base directory:    webpaint-mobile
-#   - Build command:     npm run build -- --platform web
-#   - Publish directory: webpaint-mobile/dist
-#
-# (The build command and publish directory can also be overridden in this
-# file if you don't want to manage them in the Netlify UI — see below.)
+# The build runner executes commands from the repo root (Netlify's "Current
+# directory" is /opt/build/repo even when this file lives in a subfolder),
+# and paths in this file are resolved relative to the repo root too.
+# So we target the mobile workspace explicitly with `-w webpaint-mobile`
+# and publish from `webpaint-mobile/dist`.
 
 [build]
-  # Run from inside webpaint-mobile so npm picks up the workspace package.
-  command = "npm run build -- --platform web"
-  publish = "dist"
+  # Build only the mobile workspace. Its `build` script is
+  # `expo export --platform web`, which writes the static web bundle to
+  # webpaint-mobile/dist.
+  command = "npm run build -w webpaint-mobile"
+  publish = "webpaint-mobile/dist"
 
 [build.environment]
-  # Point the bundled web build at the deployed REST API. EXPO_PUBLIC_*
-  # env vars are inlined at bundle time, so this must be set BEFORE the
-  # build runs — that's why it lives here rather than in `.env` (which is
-  # gitignored and only used for local dev).
+  # EXPO_PUBLIC_* env vars are inlined at bundle time, so this must be set
+  # BEFORE the build runs (i.e. here, not in `.env` which is gitignored).
   EXPO_PUBLIC_API_BASE_URL = "https://webpaint-web.netlify.app/api"
 
-# Expo Router emits a static export with one HTML file per route. Netlify
-# already serves them as-is; no SPA fallback is needed for typed routes.
-# The line below is a safety net in case you add a client-only route.
+# SPA fallback — only kicks in for paths Netlify can't match to a static
+# file in dist/. Expo Router's static export emits one HTML file per
+# route, so this is just a safety net for any client-only segments.
 [[redirects]]
   from = "/*"
   to = "/index.html"
