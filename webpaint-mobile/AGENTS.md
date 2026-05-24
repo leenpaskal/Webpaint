@@ -21,6 +21,7 @@ The project is structured as a multi-app workspace:
 - TypeScript
 - Backend : webpaint restfull api with bearer token auth
 - Backend API source code: '../soccer-web/src/app/api
+- api docs : http://localhost:3000/api/docs
 - Implement modular design: split large files into meaningfull components, to avoid too much code in a single file and reuse repeating code
 
 ### Mobile user interface guidelins

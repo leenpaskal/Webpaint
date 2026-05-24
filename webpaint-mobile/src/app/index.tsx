@@ -1,98 +1,92 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Link } from 'expo-router';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
-  return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+import { useAuth } from '@/lib/auth/auth-context';
 
 export default function HomeScreen() {
+  const { status, user, logout } = useAuth();
+  const isAuthed = status === 'authenticated';
+
   return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+    <View style={styles.container}>
+      <Text style={styles.title}>Welcome to Webpaint Portal</Text>
+      <Text style={styles.subtitle}>
+        Manage your clients, projects, tasks, and invoices in one place.
+      </Text>
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
-
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+      {isAuthed && user ? (
+        <View style={styles.authedBlock}>
+          <Text style={styles.greeting}>Signed in as {user.name}</Text>
+          <Text style={styles.email}>{user.email}</Text>
+          <Link href="/dashboard" style={styles.link}>
+            Go to Dashboard
+          </Link>
+          <Pressable
+            style={({ pressed }) => [styles.logout, pressed && styles.logoutPressed]}
+            onPress={logout}
+          >
+            <Text style={styles.logoutText}>Log out</Text>
+          </Pressable>
+        </View>
+      ) : (
+        <Link href="/login" style={styles.link}>
+          Go to Login
+        </Link>
+      )}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
     alignItems: 'center',
     justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
+    padding: 24,
+    gap: 16,
   },
   title: {
+    fontSize: 24,
+    fontWeight: '600',
     textAlign: 'center',
   },
-  code: {
-    textTransform: 'uppercase',
+  subtitle: {
+    fontSize: 16,
+    textAlign: 'center',
+    opacity: 0.7,
   },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+  link: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#208AEF',
+    fontWeight: '500',
+  },
+  authedBlock: {
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 8,
+  },
+  greeting: {
+    fontSize: 18,
+    fontWeight: '500',
+  },
+  email: {
+    fontSize: 14,
+    opacity: 0.7,
+  },
+  logout: {
+    marginTop: 16,
+    borderWidth: 1,
+    borderColor: '#DC2626',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  logoutPressed: {
+    backgroundColor: '#FEE2E2',
+  },
+  logoutText: {
+    color: '#DC2626',
+    fontWeight: '600',
   },
 });
