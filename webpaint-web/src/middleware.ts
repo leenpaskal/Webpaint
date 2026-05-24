@@ -45,10 +45,10 @@ export async function middleware(req: NextRequest) {
 }
 
 /**
- * Skip Next.js internals, static assets and the favicon. Everything else
- * (including server actions on public pages) runs through the matcher so
- * the cookie is observable to redirects.
+ * Skip Next.js internals, static assets, the favicon, and any /api/ route.
+ * REST endpoints handle their own auth and must return JSON 401, not an
+ * HTML redirect to /login (mobile clients can't follow that).
  */
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.[\\w]+$).*)"],
+  matcher: ["/((?!api/|_next/static|_next/image|favicon.ico|.*\\.[\\w]+$).*)"],
 };
