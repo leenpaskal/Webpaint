@@ -1,0 +1,29 @@
+# Netlify config for the Expo web build.
+#
+# In Netlify's site settings, set:
+#   - Base directory:    webpaint-mobile
+#   - Build command:     npm run build -- --platform web
+#   - Publish directory: webpaint-mobile/dist
+#
+# (The build command and publish directory can also be overridden in this
+# file if you don't want to manage them in the Netlify UI — see below.)
+
+[build]
+  # Run from inside webpaint-mobile so npm picks up the workspace package.
+  command = "npm run build -- --platform web"
+  publish = "dist"
+
+[build.environment]
+  # Point the bundled web build at the deployed REST API. EXPO_PUBLIC_*
+  # env vars are inlined at bundle time, so this must be set BEFORE the
+  # build runs — that's why it lives here rather than in `.env` (which is
+  # gitignored and only used for local dev).
+  EXPO_PUBLIC_API_BASE_URL = "https://webpaint-web.netlify.app/api"
+
+# Expo Router emits a static export with one HTML file per route. Netlify
+# already serves them as-is; no SPA fallback is needed for typed routes.
+# The line below is a safety net in case you add a client-only route.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
