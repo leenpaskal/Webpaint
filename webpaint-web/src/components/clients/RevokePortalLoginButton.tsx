@@ -3,20 +3,22 @@
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import {
-  deleteClientAction,
-  type DeleteClientState,
+  revokePortalLoginAction,
+  type RevokePortalLoginState,
 } from "@/app/actions/clients";
 
-const initialState: DeleteClientState = { error: null };
+const initialState: RevokePortalLoginState = { error: null };
 
-export default function DeleteClientButton({
+export default function RevokePortalLoginButton({
   clientId,
-  clientName,
+  userId,
+  email,
 }: {
   clientId: number;
-  clientName: string;
+  userId: number;
+  email: string;
 }) {
-  const boundAction = deleteClientAction.bind(null, clientId);
+  const boundAction = revokePortalLoginAction.bind(null, clientId, userId);
   const [state, formAction] = useActionState(boundAction, initialState);
 
   return (
@@ -24,11 +26,11 @@ export default function DeleteClientButton({
       action={formAction}
       onSubmit={(event) => {
         const ok = window.confirm(
-          `Delete client "${clientName}"? This will also remove their websites, projects, tasks and notes. This cannot be undone.`,
+          `Revoke portal access for ${email}? They will no longer be able to log in. You can re-issue credentials afterwards.`,
         );
         if (!ok) event.preventDefault();
       }}
-      className="flex flex-col gap-3"
+      className="flex flex-col gap-2"
     >
       {state.error ? (
         <p
@@ -49,9 +51,9 @@ function SubmitButton() {
     <button
       type="submit"
       disabled={pending}
-      className="inline-flex h-11 w-fit items-center justify-center rounded-md border border-red-300 bg-white px-5 text-sm font-medium text-red-700 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-900/60 dark:bg-zinc-900 dark:text-red-300 dark:hover:bg-red-950/40"
+      className="inline-flex h-10 w-fit items-center justify-center rounded-md border border-zinc-300 bg-white px-4 text-sm font-medium text-zinc-900 transition-colors hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
     >
-      {pending ? "Deleting..." : "Delete client"}
+      {pending ? "Revoking..." : "Revoke access"}
     </button>
   );
 }

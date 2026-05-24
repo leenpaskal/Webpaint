@@ -5,14 +5,29 @@
  */
 
 import "server-only";
-import { asc, eq, ilike, or } from "drizzle-orm";
+import { asc, count, eq, ilike, or } from "drizzle-orm";
 import { db } from "@/db";
-import { clients, type Client } from "@/db/schema";
+import { clients, invoices, payments, type Client } from "@/db/schema";
 
 export class ClientNotFoundError extends Error {
   constructor(id: number) {
     super(`Client ${id} not found.`);
     this.name = "ClientNotFoundError";
+  }
+}
+
+/**
+ * Thrown when a client cannot be deleted because they still own financial
+ * records (invoices, payments). Those records must be archived or
+ * reassigned through a dedicated flow — silent cascade-delete is unsafe.
+ */
+export class ClientHasDependenciesError extends Error {
+  constructor(public readonly dependencies: readonly string[]) {
+    super(
+      `Cannot delete client — they still have ${dependencies.join(" and ")}. ` +
+        `Remove or reassign those records first.`,
+    );
+    this.name = "ClientHasDependenciesError";
   }
 }
 
@@ -134,6 +149,24 @@ export async function updateClient(
 }
 
 export async function deleteClient(id: number): Promise<void> {
+  // The DB schema marks invoices.clientId and payments.clientId with
+  // ON DELETE RESTRICT, so deletion would fail at the constraint layer
+  // with a generic Postgres error. Check up-front so we can surface a
+  // domain-specific error the UI can display.
+  const [invoiceRow] = await db
+    .select({ value: count() })
+    .from(invoices)
+    .where(eq(invoices.clientId, id));
+  const [paymentRow] = await db
+    .select({ value: count() })
+    .from(payments)
+    .where(eq(payments.clientId, id));
+
+  const deps: string[] = [];
+  if (Number(invoiceRow?.value ?? 0) > 0) deps.push("invoices");
+  if (Number(paymentRow?.value ?? 0) > 0) deps.push("payments");
+  if (deps.length > 0) throw new ClientHasDependenciesError(deps);
+
   const deleted = await db
     .delete(clients)
     .where(eq(clients.id, id))

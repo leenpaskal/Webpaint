@@ -103,6 +103,13 @@ export const users = pgTable("users", {
   email: varchar("email", { length: 255 }).notNull().unique(),
   passwordHash: varchar("password_hash", { length: 255 }).notNull(),
   role: userRoleEnum("role").notNull().default("client"),
+  // Portal accounts with role='client' are linked to exactly one row in
+  // the clients table. Admin / manager accounts leave this null.
+  // Forward reference (clients is declared below) — resolved lazily by the
+  // callback so module load order is fine.
+  clientId: integer("client_id").references(() => clients.id, {
+    onDelete: "cascade",
+  }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

@@ -14,12 +14,12 @@ export default async function HomePage() {
           <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-zinc-900 sm:text-5xl md:text-6xl dark:text-zinc-50">
             {user
               ? `Welcome back, ${user.name.split(" ")[0]}.`
-              : "Run your web agency from a single dashboard."}
+              : "The Webpaint client portal."}
           </h1>
           <p className="mt-6 max-w-2xl text-base text-zinc-600 sm:text-lg dark:text-zinc-400">
             {user
               ? "Jump back into your workspace to manage clients, websites, projects, invoices and payments."
-              : "Welcome to Webpaint — manage clients, websites, projects, invoices and payments in one clean, modern workspace built for small teams and freelancers."}
+              : "Log in to submit tasks, track work and follow up on invoices. Access is by invitation only — your account manager will share credentials."}
           </p>
 
           <div className="mt-10 flex w-full max-w-sm flex-col gap-3 sm:max-w-none sm:flex-row sm:justify-center">
@@ -31,20 +31,12 @@ export default async function HomePage() {
                 Go to dashboard
               </Link>
             ) : (
-              <>
-                <Link
-                  href="/login"
-                  className="inline-flex h-12 items-center justify-center rounded-md border border-zinc-300 bg-white px-6 text-sm font-medium text-zinc-900 transition-colors hover:bg-zinc-100 sm:w-auto sm:min-w-35 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
-                >
-                  Log in
-                </Link>
-                <Link
-                  href="/register"
-                  className="inline-flex h-12 items-center justify-center rounded-md bg-zinc-900 px-6 text-sm font-medium text-white transition-colors hover:bg-zinc-800 sm:w-auto sm:min-w-35 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
-                >
-                  Create account
-                </Link>
-              </>
+              <Link
+                href="/login"
+                className="inline-flex h-12 items-center justify-center rounded-md bg-zinc-900 px-6 text-sm font-medium text-white transition-colors hover:bg-zinc-800 sm:w-auto sm:min-w-45 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+              >
+                Log in
+              </Link>
             )}
           </div>
         </div>

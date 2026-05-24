@@ -3,20 +3,20 @@
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import {
-  deleteClientAction,
-  type DeleteClientState,
-} from "@/app/actions/clients";
+  deleteTaskAction,
+  type DeleteTaskState,
+} from "@/app/actions/tasks";
 
-const initialState: DeleteClientState = { error: null };
+const initialState: DeleteTaskState = { error: null };
 
-export default function DeleteClientButton({
-  clientId,
-  clientName,
+export default function DeleteTaskButton({
+  taskId,
+  taskTitle,
 }: {
-  clientId: number;
-  clientName: string;
+  taskId: number;
+  taskTitle: string;
 }) {
-  const boundAction = deleteClientAction.bind(null, clientId);
+  const boundAction = deleteTaskAction.bind(null, taskId);
   const [state, formAction] = useActionState(boundAction, initialState);
 
   return (
@@ -24,7 +24,7 @@ export default function DeleteClientButton({
       action={formAction}
       onSubmit={(event) => {
         const ok = window.confirm(
-          `Delete client "${clientName}"? This will also remove their websites, projects, tasks and notes. This cannot be undone.`,
+          `Delete task "${taskTitle}"? This cannot be undone.`,
         );
         if (!ok) event.preventDefault();
       }}
@@ -51,7 +51,7 @@ function SubmitButton() {
       disabled={pending}
       className="inline-flex h-11 w-fit items-center justify-center rounded-md border border-red-300 bg-white px-5 text-sm font-medium text-red-700 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-900/60 dark:bg-zinc-900 dark:text-red-300 dark:hover:bg-red-950/40"
     >
-      {pending ? "Deleting..." : "Delete client"}
+      {pending ? "Deleting..." : "Delete task"}
     </button>
   );
 }

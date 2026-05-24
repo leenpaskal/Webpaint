@@ -1,0 +1,44 @@
+import {
+  TASK_PRIORITY_LABELS,
+  TASK_STATUS_LABELS,
+  type TaskPriority,
+  type TaskStatus,
+} from "@/lib/tasks/task-constants";
+
+const STATUS_STYLES: Record<TaskStatus, string> = {
+  todo: "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300",
+  in_progress:
+    "bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300",
+  review:
+    "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300",
+  completed:
+    "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300",
+};
+
+const PRIORITY_STYLES: Record<TaskPriority, string> = {
+  low: "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300",
+  medium:
+    "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300",
+  high: "bg-orange-100 text-orange-800 dark:bg-orange-950/60 dark:text-orange-300",
+  urgent: "bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300",
+};
+
+export function StatusBadge({ status }: { status: TaskStatus }) {
+  return (
+    <span
+      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${STATUS_STYLES[status]}`}
+    >
+      {TASK_STATUS_LABELS[status]}
+    </span>
+  );
+}
+
+export function PriorityBadge({ priority }: { priority: TaskPriority }) {
+  return (
+    <span
+      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${PRIORITY_STYLES[priority]}`}
+    >
+      {TASK_PRIORITY_LABELS[priority]}
+    </span>
+  );
+}

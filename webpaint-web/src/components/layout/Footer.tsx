@@ -13,7 +13,6 @@ export default async function Footer() {
     : [
         { href: "/", label: "Home" },
         { href: "/login", label: "Log in" },
-        { href: "/register", label: "Sign up" },
       ];
 
   return (

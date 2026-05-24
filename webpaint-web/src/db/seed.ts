@@ -83,12 +83,13 @@ const userSeed: NewUser[] = [
     role: "manager",
   },
   {
-    // Client-portal login — conceptually the owner of client #2.
+    // Client-portal login — owner of clients-table row #2.
     id: 3,
     name: "Georgi Stoyanov",
     email: "georgi@stoyanovdesign.bg",
     passwordHash: DEMO_PASSWORD_HASH,
     role: "client",
+    clientId: 2,
   },
 ];
 
@@ -975,11 +976,13 @@ async function seed(): Promise<void> {
   );
 
   // 2. Insert rows in dependency order so foreign keys resolve.
-  console.log("   • Inserting users");
-  await db.insert(users).values(userSeed);
-
+  //    Clients must come before users because users.client_id now
+  //    references clients.id for client-role portal accounts.
   console.log("   • Inserting clients");
   await db.insert(clients).values(clientSeed);
+
+  console.log("   • Inserting users");
+  await db.insert(users).values(userSeed);
 
   console.log("   • Inserting websites");
   await db.insert(websites).values(websiteSeed);

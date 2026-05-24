@@ -18,6 +18,8 @@ export type SessionPayload = {
   email: string;
   name: string;
   role: UserRole;
+  /** Linked clients-table row (required for role='client', null otherwise). */
+  clientId: number | null;
 };
 
 let cachedKey: Uint8Array | null = null;
@@ -54,11 +56,17 @@ export async function verifySessionToken(
       audience: JWT_AUDIENCE,
     });
     if (!isSessionPayload(payload)) return null;
+    const rawClientId = (payload as Record<string, unknown>).clientId;
+    const clientId =
+      typeof rawClientId === "number" && Number.isFinite(rawClientId)
+        ? rawClientId
+        : null;
     return {
       sub: payload.sub,
       email: payload.email,
       name: payload.name,
       role: payload.role,
+      clientId,
     };
   } catch {
     return null;

@@ -14,7 +14,7 @@ export const JWT_AUDIENCE = "webpaint-portal-users";
  * Routes that are reachable without a session.
  * Anything not listed (and not a static asset) is gated by middleware.
  */
-export const PUBLIC_PATHS: readonly string[] = ["/", "/login", "/register"];
+export const PUBLIC_PATHS: readonly string[] = ["/", "/login"];
 
 /** Default destination after a successful login / register. */
 export const DEFAULT_LOGIN_REDIRECT = "/dashboard";

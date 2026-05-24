@@ -23,6 +23,8 @@ export type CurrentUser = {
   email: string;
   name: string;
   role: SessionPayload["role"];
+  /** Linked clients-table row (required for role='client', null otherwise). */
+  clientId: number | null;
 };
 
 export async function createSession(user: CurrentUser): Promise<void> {
@@ -31,6 +33,7 @@ export async function createSession(user: CurrentUser): Promise<void> {
     email: user.email,
     name: user.name,
     role: user.role,
+    clientId: user.clientId,
   });
 
   const store = await cookies();
@@ -64,6 +67,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     email: payload.email,
     name: payload.name,
     role: payload.role,
+    clientId: payload.clientId,
   };
 }
 

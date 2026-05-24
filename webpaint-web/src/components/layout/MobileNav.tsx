@@ -143,22 +143,13 @@ export default function MobileNav({ links, user }: MobileNavProps) {
               </button>
             </form>
           ) : (
-            <>
-              <Link
-                href="/login"
-                onClick={close}
-                className="inline-flex h-10 items-center justify-center rounded-md border border-zinc-300 px-4 text-sm font-medium text-zinc-900 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-100 dark:hover:bg-zinc-800"
-              >
-                Log in
-              </Link>
-              <Link
-                href="/register"
-                onClick={close}
-                className="inline-flex h-10 items-center justify-center rounded-md bg-zinc-900 px-4 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
-              >
-                Sign up
-              </Link>
-            </>
+            <Link
+              href="/login"
+              onClick={close}
+              className="inline-flex h-10 items-center justify-center rounded-md bg-zinc-900 px-4 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+            >
+              Log in
+            </Link>
           )}
         </div>
       </nav>

@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { loginAction, type AuthFormState } from "@/app/actions/auth";
@@ -55,14 +54,9 @@ export default function LoginForm() {
         <SubmitButton label="Log in" pendingLabel="Logging in..." />
       </form>
 
-      <p className="mt-6 text-center text-sm text-zinc-600 dark:text-zinc-400">
-        Don&apos;t have an account?{" "}
-        <Link
-          href="/register"
-          className="font-medium text-zinc-900 underline-offset-2 hover:underline dark:text-zinc-100"
-        >
-          Create one
-        </Link>
+      <p className="mt-6 text-center text-xs text-zinc-500 dark:text-zinc-500">
+        Access is by invitation only. Contact your Webpaint account manager
+        if you need credentials.
       </p>
     </div>
   );

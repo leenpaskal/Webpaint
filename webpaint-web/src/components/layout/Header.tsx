@@ -14,7 +14,6 @@ export default async function Header() {
     : [
         { href: "/", label: "Home" },
         { href: "/login", label: "Log in" },
-        { href: "/register", label: "Sign up" },
       ];
 
   return (
@@ -46,20 +45,12 @@ export default async function Header() {
           {user ? (
             <UserMenu user={user} />
           ) : (
-            <>
-              <Link
-                href="/login"
-                className="inline-flex h-9 items-center justify-center rounded-md border border-zinc-300 px-4 text-sm font-medium text-zinc-900 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-100 dark:hover:bg-zinc-800"
-              >
-                Log in
-              </Link>
-              <Link
-                href="/register"
-                className="inline-flex h-9 items-center justify-center rounded-md bg-zinc-900 px-4 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
-              >
-                Sign up
-              </Link>
-            </>
+            <Link
+              href="/login"
+              className="inline-flex h-9 items-center justify-center rounded-md bg-zinc-900 px-4 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+            >
+              Log in
+            </Link>
           )}
         </div>
 

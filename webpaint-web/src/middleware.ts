@@ -14,7 +14,7 @@ import {
 } from "@/lib/auth/config";
 import { verifySessionToken } from "@/lib/auth/jwt";
 
-const AUTH_PAGES = new Set(["/login", "/register"]);
+const AUTH_PAGES = new Set(["/login"]);
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;

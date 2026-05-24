@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { requireUser } from "@/lib/auth/session";
 import { countClients } from "@/lib/clients/client-service";
+import { countOpenTasks } from "@/lib/tasks/task-service";
 
 export const metadata: Metadata = {
   title: "Dashboard — Webpaint",
@@ -9,7 +10,16 @@ export const metadata: Metadata = {
 
 export default async function DashboardPage() {
   const user = await requireUser();
-  const clientCount = await countClients();
+  const isClient = user.role === "client";
+
+  // The Clients tile leaks total customer count, so don't fetch it for
+  // portal client accounts.
+  const [clientCount, openTaskCount] = await Promise.all([
+    isClient ? Promise.resolve(0) : countClients(),
+    countOpenTasks({
+      clientId: isClient ? user.clientId : null,
+    }),
+  ]);
 
   return (
     <div className="flex flex-col gap-8">
@@ -26,13 +36,30 @@ export default async function DashboardPage() {
       </header>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {isClient ? null : (
+          <StatCard
+            title="Clients"
+            value={String(clientCount)}
+            hint={
+              clientCount === 0 ? "Add your first client" : "Manage clients"
+            }
+            href="/dashboard/clients"
+          />
+        )}
         <StatCard
-          title="Clients"
-          value={String(clientCount)}
-          hint={clientCount === 0 ? "Add your first client" : "Manage clients"}
-          href="/dashboard/clients"
+          title="Open tasks"
+          value={String(openTaskCount)}
+          hint={
+            openTaskCount === 0
+              ? isClient
+                ? "Submit your first task"
+                : "No open tasks"
+              : isClient
+                ? "Track your submissions"
+                : "Manage tasks"
+          }
+          href="/dashboard/tasks"
         />
-        <StatCard title="Open tasks" value="—" hint="Coming soon" />
         <StatCard title="Unpaid invoices" value="—" hint="Coming soon" />
       </div>
     </div>
