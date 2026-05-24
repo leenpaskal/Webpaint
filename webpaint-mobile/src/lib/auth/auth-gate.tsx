@@ -3,6 +3,7 @@ import { useEffect, type ReactNode } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { useAuth } from '@/lib/auth/auth-context';
+import { palette } from '@/lib/theme';
 
 const PUBLIC_ROUTES = new Set<string>(['index', 'login']);
 
@@ -32,7 +33,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
   if (status === 'loading') {
     return (
       <View style={styles.loader}>
-        <ActivityIndicator />
+        <ActivityIndicator color={palette.textMuted} />
       </View>
     );
   }
@@ -45,5 +46,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: palette.background,
   },
 });

@@ -32,13 +32,19 @@ export type RequestOptions = {
   body?: unknown;
   token?: string | null;
   signal?: AbortSignal;
+  /**
+   * When true, `path` is rooted at the server origin (e.g. `/api/invoices/:id/pdf`)
+   * rather than relative to EXPO_PUBLIC_API_BASE_URL (which is `<origin>/api`).
+   * Used for legacy endpoints that live outside the `/v1` prefix.
+   */
+  rawPath?: boolean;
 };
 
 export async function apiRequest<T>(
   path: string,
   opts: RequestOptions = {},
 ): Promise<T> {
-  const { method = 'GET', body, token, signal } = opts;
+  const { method = 'GET', body, token, signal, rawPath } = opts;
 
   const headers: Record<string, string> = {
     Accept: 'application/json',
@@ -46,9 +52,12 @@ export async function apiRequest<T>(
   if (body !== undefined) headers['Content-Type'] = 'application/json';
   if (token) headers.Authorization = `Bearer ${token}`;
 
+  const origin = (BASE_URL ?? '').replace(/\/api\/?$/, '');
+  const url = rawPath ? `${origin}${path}` : `${BASE_URL ?? ''}${path}`;
+
   let res: Response;
   try {
-    res = await fetch(`${BASE_URL ?? ''}${path}`, {
+    res = await fetch(url, {
       method,
       headers,
       body: body === undefined ? undefined : JSON.stringify(body),

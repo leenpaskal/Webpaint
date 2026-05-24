@@ -1,6 +1,8 @@
 import { useRouter, type Href } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { fontSize, palette, radii } from '@/lib/theme';
+
 type Props = {
   label: string;
   value: number | string;
@@ -9,7 +11,13 @@ type Props = {
   accent?: string;
 };
 
-export function SummaryCard({ label, value, caption, href, accent = '#208AEF' }: Props) {
+export function SummaryCard({
+  label,
+  value,
+  caption,
+  href,
+  accent = palette.primary,
+}: Props) {
   const router = useRouter();
   return (
     <Pressable
@@ -24,7 +32,7 @@ export function SummaryCard({ label, value, caption, href, accent = '#208AEF' }:
         <Text style={styles.value}>{value}</Text>
         {caption ? <Text style={styles.caption}>{caption}</Text> : null}
       </View>
-      <Text style={[styles.chevron, { color: accent }]}>›</Text>
+      <Text style={styles.chevron}>›</Text>
     </Pressable>
   );
 }
@@ -33,15 +41,15 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 12,
+    backgroundColor: palette.surface,
+    borderRadius: radii.lg,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: palette.border,
     overflow: 'hidden',
     minHeight: 96,
   },
   cardPressed: {
-    opacity: 0.85,
+    backgroundColor: palette.surfaceMuted,
   },
   accent: {
     width: 4,
@@ -54,24 +62,25 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   label: {
-    fontSize: 13,
+    fontSize: fontSize.sm,
     fontWeight: '500',
-    color: '#6B7280',
+    color: palette.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   value: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#111827',
+    color: palette.text,
   },
   caption: {
-    fontSize: 13,
-    color: '#6B7280',
+    fontSize: fontSize.sm,
+    color: palette.textMuted,
   },
   chevron: {
     fontSize: 32,
     fontWeight: '300',
     paddingHorizontal: 16,
+    color: palette.textMuted,
   },
 });

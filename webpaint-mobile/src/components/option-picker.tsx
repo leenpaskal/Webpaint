@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 
 import { fontSize, palette, radii } from '@/lib/theme';
 
@@ -10,9 +10,17 @@ type Props<T extends string> = {
   onChange: (next: T) => void;
 };
 
-export function FilterTabs<T extends string>({ value, options, onChange }: Props<T>) {
+/**
+ * Touch-friendly alternative to a <select> for short option lists. Renders
+ * the options as a horizontal row of chips.
+ */
+export function OptionPicker<T extends string>({ value, options, onChange }: Props<T>) {
   return (
-    <View style={styles.row}>
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.row}
+    >
       {options.map((opt) => {
         const active = opt.value === value;
         return (
@@ -20,9 +28,9 @@ export function FilterTabs<T extends string>({ value, options, onChange }: Props
             key={opt.value}
             onPress={() => onChange(opt.value)}
             style={({ pressed }) => [
-              styles.tab,
-              active && styles.tabActive,
-              pressed && !active && styles.tabPressed,
+              styles.chip,
+              active && styles.chipActive,
+              pressed && !active && styles.chipPressed,
             ]}
             accessibilityRole="button"
             accessibilityState={{ selected: active }}
@@ -33,30 +41,29 @@ export function FilterTabs<T extends string>({ value, options, onChange }: Props
           </Pressable>
         );
       })}
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
-    backgroundColor: palette.surface,
-    borderRadius: radii.md,
-    padding: 4,
-    gap: 4,
-    borderWidth: 1,
-    borderColor: palette.border,
+    gap: 8,
+    paddingVertical: 4,
   },
-  tab: {
-    flex: 1,
+  chip: {
+    paddingHorizontal: 14,
     paddingVertical: 8,
-    borderRadius: radii.sm,
-    alignItems: 'center',
+    borderRadius: radii.pill,
+    borderWidth: 1,
+    borderColor: palette.borderStrong,
+    backgroundColor: palette.surface,
   },
-  tabActive: {
+  chipActive: {
     backgroundColor: palette.primary,
+    borderColor: palette.primary,
   },
-  tabPressed: {
+  chipPressed: {
     backgroundColor: palette.surfaceMuted,
   },
   label: {

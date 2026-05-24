@@ -1,4 +1,5 @@
 import type {
+  Currency,
   InvoiceStatus,
   TaskPriority,
   TaskStatus,
@@ -26,16 +27,24 @@ export const TASK_PRIORITY_LABELS: Record<TaskPriority, string> = {
   urgent: 'Urgent',
 };
 
-type Tone = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
+export const CURRENCY_LABELS: Record<Currency, string> = {
+  BGN: 'лв (BGN)',
+  EUR: '€ (EUR)',
+  USD: '$ (USD)',
+};
 
+type Tone = 'neutral' | 'info' | 'success' | 'warning' | 'danger' | 'muted';
+
+// Mirrors webpaint-web/src/components/invoices/InvoiceStatusBadge.tsx
 export const INVOICE_STATUS_TONE: Record<InvoiceStatus, Tone> = {
   draft: 'neutral',
   sent: 'info',
   paid: 'success',
   overdue: 'danger',
-  cancelled: 'neutral',
+  cancelled: 'muted',
 };
 
+// Mirrors webpaint-web/src/components/tasks/badges.tsx
 export const TASK_STATUS_TONE: Record<TaskStatus, Tone> = {
   todo: 'neutral',
   in_progress: 'info',
@@ -45,7 +54,7 @@ export const TASK_STATUS_TONE: Record<TaskStatus, Tone> = {
 
 export const TASK_PRIORITY_TONE: Record<TaskPriority, Tone> = {
   low: 'neutral',
-  medium: 'info',
+  medium: 'neutral',
   high: 'warning',
   urgent: 'danger',
 };

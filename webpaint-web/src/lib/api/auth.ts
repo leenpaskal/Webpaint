@@ -20,8 +20,22 @@ function readBearer(req: Request): string | null {
   return m ? m[1].trim() : null;
 }
 
+function readTokenQuery(req: Request): string | null {
+  try {
+    const url = new URL(req.url);
+    const t = url.searchParams.get("token");
+    return t ? t.trim() : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function getApiUser(req: Request): Promise<CurrentUser | null> {
-  let token = readBearer(req);
+  // Mobile uses Authorization: Bearer in most calls, but for endpoints
+  // that have to be opened by the OS (PDF downloads via Linking) we also
+  // accept ?token=<jwt> on the URL. Cookie fallback keeps web callers
+  // working unchanged.
+  let token = readBearer(req) ?? readTokenQuery(req);
   if (!token) {
     const store = await cookies();
     token = store.get(SESSION_COOKIE_NAME)?.value ?? null;

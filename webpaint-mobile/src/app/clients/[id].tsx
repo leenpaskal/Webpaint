@@ -1,17 +1,33 @@
-import { Stack, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import {
+  Stack,
+  useFocusEffect,
+  useLocalSearchParams,
+  useRouter,
+} from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
+import { ClientForm } from '@/components/clients/client-form';
+import { DeleteClientButton } from '@/components/clients/delete-client-button';
 import { ScreenMessage } from '@/components/screen-message';
-import { getClient } from '@/lib/api/clients';
 import { ApiError } from '@/lib/api/client';
+import { getClient, updateClient } from '@/lib/api/clients';
 import type { Client } from '@/lib/api/types';
 import { useAuth } from '@/lib/auth/auth-context';
 import { formatDate } from '@/lib/format';
+import { fontSize, palette, radii, spacing } from '@/lib/theme';
 
 export default function ClientDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { token } = useAuth();
+  const router = useRouter();
   const [client, setClient] = useState<Client | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -57,84 +73,90 @@ export default function ClientDetailScreen() {
   return (
     <>
       <Stack.Screen options={{ title: client.name }} />
-      <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.name}>{client.name}</Text>
-          {client.companyName ? (
-            <Text style={styles.company}>{client.companyName}</Text>
-          ) : null}
-        </View>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <ScrollView
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.header}>
+            <Text style={styles.name}>{client.name}</Text>
+            {client.companyName ? (
+              <Text style={styles.company}>{client.companyName}</Text>
+            ) : null}
+            <Text style={styles.added}>
+              Added {formatDate(client.createdAt)}
+            </Text>
+          </View>
 
-        <DetailRow label="Email" value={client.email} />
-        <DetailRow label="Phone" value={client.phone} />
-        <DetailRow label="VAT number" value={client.vatNumber} />
-        <DetailRow label="Address" value={client.address} multiline />
-        <DetailRow
-          label="Client since"
-          value={formatDate(client.createdAt) || null}
-        />
-      </ScrollView>
+          <View style={styles.card}>
+            <ClientForm
+              key={String(client.id)}
+              initial={{
+                name: client.name,
+                companyName: client.companyName,
+                email: client.email,
+                phone: client.phone,
+                address: client.address,
+                vatNumber: client.vatNumber,
+              }}
+              submitLabel="Save changes"
+              pendingLabel="Saving..."
+              showSavedNotice
+              onSubmit={async (input) => {
+                if (!token) return;
+                const { client: next } = await updateClient(
+                  token,
+                  client.id,
+                  input,
+                );
+                setClient(next);
+              }}
+            />
+          </View>
+
+          <DeleteClientButton
+            clientId={client.id}
+            clientName={client.name}
+            onDeleted={() => router.replace('/clients')}
+          />
+        </ScrollView>
+      </KeyboardAvoidingView>
     </>
   );
 }
 
-function DetailRow({
-  label,
-  value,
-  multiline,
-}: {
-  label: string;
-  value: string | null;
-  multiline?: boolean;
-}) {
-  return (
-    <View style={styles.row}>
-      <Text style={styles.label}>{label}</Text>
-      <Text style={[styles.value, multiline && styles.valueMultiline]}>
-        {value ?? '—'}
-      </Text>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    gap: 12,
+  container: { flex: 1, backgroundColor: palette.background },
+  content: {
+    padding: spacing.xl,
+    gap: spacing.lg,
+    paddingBottom: 40,
   },
   header: {
-    marginBottom: 8,
     gap: 4,
   },
   name: {
-    fontSize: 24,
+    fontSize: fontSize.xxl,
     fontWeight: '700',
+    color: palette.text,
   },
   company: {
-    fontSize: 16,
-    color: '#6B7280',
+    fontSize: fontSize.lg,
+    color: palette.textSubtle,
   },
-  row: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
+  added: {
+    fontSize: fontSize.sm,
+    color: palette.textMuted,
+    marginTop: 2,
+  },
+  card: {
+    backgroundColor: palette.surface,
+    borderRadius: radii.lg,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    gap: 4,
-  },
-  label: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#6B7280',
-    textTransform: 'uppercase',
-    letterSpacing: 0.4,
-  },
-  value: {
-    fontSize: 16,
-    color: '#111827',
-  },
-  valueMultiline: {
-    lineHeight: 22,
+    borderColor: palette.border,
+    padding: spacing.lg,
   },
 });

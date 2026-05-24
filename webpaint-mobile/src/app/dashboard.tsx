@@ -14,6 +14,7 @@ import { ApiError } from '@/lib/api/client';
 import { fetchDashboardSummary } from '@/lib/api/dashboard';
 import type { DashboardSummary } from '@/lib/api/types';
 import { useAuth } from '@/lib/auth/auth-context';
+import { colors, fontSize, palette, spacing } from '@/lib/theme';
 
 export default function DashboardScreen() {
   const { token, user } = useAuth();
@@ -62,7 +63,11 @@ export default function DashboardScreen() {
       style={styles.scroll}
       contentContainerStyle={styles.container}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={() => load('refresh')} />
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={() => load('refresh')}
+          tintColor={palette.textMuted}
+        />
       }
     >
       <View style={styles.header}>
@@ -81,7 +86,7 @@ export default function DashboardScreen() {
             value={summary?.clients ?? 0}
             caption="Total clients on file"
             href="/clients"
-            accent="#208AEF"
+            accent={palette.primary}
           />
         ) : null}
         <SummaryCard
@@ -89,14 +94,14 @@ export default function DashboardScreen() {
           value={summary?.unpaidInvoices ?? 0}
           caption="Sent or overdue"
           href={{ pathname: '/invoices', params: { status: 'unpaid' } }}
-          accent="#DC2626"
+          accent={colors.red600}
         />
         <SummaryCard
           label="Open tasks"
           value={summary?.openTasks ?? 0}
           caption="Not yet completed"
           href={{ pathname: '/tasks', params: { status: 'open' } }}
-          accent="#F59E0B"
+          accent={colors.amber700}
         />
       </View>
 
@@ -112,10 +117,11 @@ export default function DashboardScreen() {
 const styles = StyleSheet.create({
   scroll: {
     flex: 1,
+    backgroundColor: palette.background,
   },
   container: {
-    padding: 20,
-    gap: 20,
+    padding: spacing.xl,
+    gap: spacing.xl,
   },
   header: {
     gap: 4,
@@ -123,21 +129,24 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: 24,
     fontWeight: '700',
+    color: palette.text,
   },
   subtitle: {
-    fontSize: 14,
-    color: '#6B7280',
+    fontSize: fontSize.md,
+    color: palette.textSubtle,
   },
   cards: {
-    gap: 12,
+    gap: spacing.md,
   },
   errorBanner: {
-    backgroundColor: '#FEE2E2',
+    backgroundColor: palette.dangerBg,
     borderRadius: 8,
     padding: 12,
+    borderWidth: 1,
+    borderColor: palette.dangerBorder,
   },
   errorText: {
-    color: '#991B1B',
-    fontSize: 13,
+    color: palette.dangerOnBg,
+    fontSize: fontSize.sm,
   },
 });

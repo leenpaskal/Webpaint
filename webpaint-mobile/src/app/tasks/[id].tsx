@@ -1,11 +1,13 @@
-import { Stack, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { ScreenMessage } from '@/components/screen-message';
 import { StatusBadge } from '@/components/status-badge';
+import { DeleteTaskButton } from '@/components/tasks/delete-task-button';
+import { TaskWorkflowForm } from '@/components/tasks/task-workflow-form';
 import { ApiError } from '@/lib/api/client';
-import { getTask } from '@/lib/api/tasks';
+import { getTask, type TaskClientLabel } from '@/lib/api/tasks';
 import type { Task } from '@/lib/api/types';
 import { useAuth } from '@/lib/auth/auth-context';
 import { formatDate } from '@/lib/format';
@@ -15,11 +17,14 @@ import {
   TASK_STATUS_LABELS,
   TASK_STATUS_TONE,
 } from '@/lib/labels';
+import { fontSize, palette, radii, spacing } from '@/lib/theme';
 
 export default function TaskDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { token } = useAuth();
+  const { token, user } = useAuth();
+  const router = useRouter();
   const [task, setTask] = useState<Task | null>(null);
+  const [taskClient, setTaskClient] = useState<TaskClientLabel | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,8 +39,9 @@ export default function TaskDetailScreen() {
     setLoading(true);
     setError(null);
     try {
-      const { task: next } = await getTask(token, numericId);
+      const { task: next, client } = await getTask(token, numericId);
       setTask(next);
+      setTaskClient(client);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Failed to load task.');
     } finally {
@@ -61,11 +67,21 @@ export default function TaskDetailScreen() {
     );
   }
 
+  const canManage = user?.role === 'admin' || user?.role === 'manager';
+
   return (
     <>
       <Stack.Screen options={{ title: task.title }} />
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>{task.title}</Text>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.container}
+      >
+        <View>
+          <Text style={styles.title}>{task.title}</Text>
+          <Text style={styles.submitted}>
+            Submitted {formatDate(task.createdAt)}
+          </Text>
+        </View>
 
         <View style={styles.badges}>
           <StatusBadge
@@ -78,85 +94,141 @@ export default function TaskDetailScreen() {
           />
         </View>
 
-        {task.description ? (
-          <View style={styles.descriptionBox}>
+        <View style={styles.detailsCard}>
+          <Text style={styles.sectionHeading}>Details</Text>
+          <DetailRow label="Due date" value={formatDate(task.dueDate) || null} />
+          {canManage ? (
+            <DetailRow label="Submitted by" value={formatClient(taskClient)} />
+          ) : null}
+          <DetailRow
+            label="Last updated"
+            value={formatDate(task.updatedAt) || null}
+          />
+          <View style={styles.description}>
             <Text style={styles.descriptionLabel}>Description</Text>
-            <Text style={styles.descriptionText}>{task.description}</Text>
+            <Text style={styles.descriptionText}>
+              {task.description?.trim() || 'No description provided.'}
+            </Text>
           </View>
-        ) : null}
+        </View>
 
-        <DetailRow label="Due date" value={formatDate(task.dueDate) || null} />
-        <DetailRow label="Created" value={formatDate(task.createdAt) || null} />
-        <DetailRow
-          label="Last updated"
-          value={formatDate(task.updatedAt) || null}
-        />
+        {canManage ? (
+          <TaskWorkflowForm task={task} onSaved={setTask} />
+        ) : (
+          <View style={styles.clientNote}>
+            <Text style={styles.clientNoteText}>
+              The Webpaint team manages status and priority. You&apos;ll see
+              updates here as they progress.
+            </Text>
+          </View>
+        )}
+
+        {canManage ? (
+          <DeleteTaskButton
+            taskId={task.id}
+            taskTitle={task.title}
+            onDeleted={() => router.replace('/tasks')}
+          />
+        ) : null}
       </ScrollView>
     </>
   );
 }
 
+function formatClient(client: TaskClientLabel | null): string | null {
+  if (!client) return null;
+  if (client.companyName && client.name)
+    return `${client.companyName} — ${client.name}`;
+  return client.companyName ?? client.name ?? null;
+}
+
 function DetailRow({ label, value }: { label: string; value: string | null }) {
   return (
     <View style={styles.row}>
-      <Text style={styles.label}>{label}</Text>
-      <Text style={styles.value}>{value ?? '—'}</Text>
+      <Text style={styles.rowLabel}>{label}</Text>
+      <Text style={styles.rowValue}>{value ?? '—'}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  scroll: {
+    flex: 1,
+    backgroundColor: palette.background,
+  },
   container: {
-    padding: 20,
-    gap: 12,
+    padding: spacing.xl,
+    gap: 14,
+    paddingBottom: 40,
   },
   title: {
-    fontSize: 22,
+    fontSize: fontSize.xxl,
     fontWeight: '700',
+    color: palette.text,
+  },
+  submitted: {
+    fontSize: fontSize.sm,
+    color: palette.textMuted,
+    marginTop: 2,
   },
   badges: {
     flexDirection: 'row',
     gap: 8,
     flexWrap: 'wrap',
   },
-  descriptionBox: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
+  detailsCard: {
+    backgroundColor: palette.surface,
+    borderRadius: radii.lg,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
-    padding: 14,
-    gap: 6,
+    borderColor: palette.border,
+    padding: spacing.lg,
+    gap: spacing.md,
+  },
+  sectionHeading: { fontSize: fontSize.md, fontWeight: '600', color: palette.text },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  rowLabel: {
+    fontSize: fontSize.sm,
+    color: palette.textMuted,
+    fontWeight: '500',
+  },
+  rowValue: {
+    fontSize: fontSize.md,
+    color: palette.text,
+    fontWeight: '500',
+    textAlign: 'right',
+    flexShrink: 1,
+  },
+  description: {
+    gap: 4,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: palette.border,
+    paddingTop: spacing.md,
   },
   descriptionLabel: {
-    fontSize: 12,
+    fontSize: fontSize.sm,
     fontWeight: '600',
-    color: '#6B7280',
+    color: palette.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.4,
   },
   descriptionText: {
-    fontSize: 15,
-    color: '#111827',
+    fontSize: fontSize.base,
+    color: palette.text,
     lineHeight: 22,
   },
-  row: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
+  clientNote: {
+    backgroundColor: palette.surface,
+    borderRadius: radii.lg,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    gap: 4,
+    borderColor: palette.border,
+    padding: 14,
   },
-  label: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#6B7280',
-    textTransform: 'uppercase',
-    letterSpacing: 0.4,
-  },
-  value: {
-    fontSize: 16,
-    color: '#111827',
+  clientNoteText: {
+    fontSize: fontSize.sm,
+    color: palette.textSubtle,
   },
 });

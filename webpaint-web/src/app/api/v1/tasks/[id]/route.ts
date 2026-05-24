@@ -13,7 +13,10 @@
  * DELETE remove a task (admin / manager). 204 on success.
  */
 
+import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
+import { db } from "@/db";
+import { clients } from "@/db/schema";
 import { getApiUser, isManagerRole } from "@/lib/api/auth";
 import {
   apiBadRequest,
@@ -58,7 +61,26 @@ export async function GET(req: Request, { params }: { params: Params }) {
     if (!isManagerRole(user.role) && task.clientId !== user.clientId) {
       return apiForbidden();
     }
-    return jsonOk({ task });
+
+    // Join the submitting client's display info so admin/manager screens
+    // can render "Submitted by ...". Clients already know it's theirs, so
+    // we skip the lookup for that role.
+    let taskClient: { id: number; name: string; companyName: string | null } | null =
+      null;
+    if (isManagerRole(user.role) && task.clientId != null) {
+      const [row] = await db
+        .select({
+          id: clients.id,
+          name: clients.name,
+          companyName: clients.companyName,
+        })
+        .from(clients)
+        .where(eq(clients.id, task.clientId))
+        .limit(1);
+      taskClient = row ?? null;
+    }
+
+    return jsonOk({ task, client: taskClient });
   } catch (err) {
     if (err instanceof TaskNotFoundError) return apiNotFound("Task");
     console.error("api get task failed", err);

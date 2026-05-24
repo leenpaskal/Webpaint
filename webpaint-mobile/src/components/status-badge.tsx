@@ -1,25 +1,39 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-type Tone = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
+import { colors } from '@/lib/theme';
+
+type Tone = 'neutral' | 'info' | 'success' | 'warning' | 'danger' | 'muted';
 
 type Props = {
   label: string;
   tone?: Tone;
+  strike?: boolean;
 };
 
+// Matches the web's badges: bg-X-100 / text-X-800 stops at the lighter end
+// of Tailwind, with subtle borders implied by the surface color.
 const TONES: Record<Tone, { bg: string; fg: string }> = {
-  neutral: { bg: '#E5E7EB', fg: '#374151' },
-  info: { bg: '#DBEAFE', fg: '#1E40AF' },
-  success: { bg: '#D1FAE5', fg: '#065F46' },
-  warning: { bg: '#FEF3C7', fg: '#92400E' },
-  danger: { bg: '#FEE2E2', fg: '#991B1B' },
+  neutral: { bg: colors.zinc100, fg: colors.zinc700 },
+  info: { bg: colors.blue100, fg: colors.blue800 },
+  success: { bg: colors.emerald100, fg: colors.emerald800 },
+  warning: { bg: colors.amber100, fg: colors.amber800 },
+  danger: { bg: colors.red100, fg: colors.red800 },
+  muted: { bg: colors.zinc100, fg: colors.zinc500 },
 };
 
-export function StatusBadge({ label, tone = 'neutral' }: Props) {
+export function StatusBadge({ label, tone = 'neutral', strike }: Props) {
   const palette = TONES[tone];
   return (
     <View style={[styles.badge, { backgroundColor: palette.bg }]}>
-      <Text style={[styles.text, { color: palette.fg }]}>{label}</Text>
+      <Text
+        style={[
+          styles.text,
+          { color: palette.fg },
+          strike && styles.strike,
+        ]}
+      >
+        {label}
+      </Text>
     </View>
   );
 }
@@ -33,8 +47,9 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 11,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 0.4,
+    fontWeight: '500',
+  },
+  strike: {
+    textDecorationLine: 'line-through',
   },
 });

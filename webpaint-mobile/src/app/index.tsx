@@ -2,6 +2,7 @@ import { Link } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useAuth } from '@/lib/auth/auth-context';
+import { fontSize, palette, radii, spacing } from '@/lib/theme';
 
 export default function HomeScreen() {
   const { status, user, logout } = useAuth();
@@ -22,7 +23,10 @@ export default function HomeScreen() {
             Go to Dashboard
           </Link>
           <Pressable
-            style={({ pressed }) => [styles.logout, pressed && styles.logoutPressed]}
+            style={({ pressed }) => [
+              styles.logout,
+              pressed && styles.logoutPressed,
+            ]}
             onPress={logout}
           >
             <Text style={styles.logoutText}>Log out</Text>
@@ -42,51 +46,54 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 24,
-    gap: 16,
+    padding: spacing.xxl,
+    gap: spacing.lg,
+    backgroundColor: palette.background,
   },
   title: {
     fontSize: 24,
-    fontWeight: '600',
+    fontWeight: '700',
     textAlign: 'center',
+    color: palette.text,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: fontSize.lg,
     textAlign: 'center',
-    opacity: 0.7,
+    color: palette.textSubtle,
   },
   link: {
-    marginTop: 16,
-    fontSize: 16,
-    color: '#208AEF',
-    fontWeight: '500',
+    marginTop: spacing.lg,
+    fontSize: fontSize.lg,
+    color: palette.primary,
+    fontWeight: '600',
   },
   authedBlock: {
     alignItems: 'center',
-    gap: 8,
-    marginTop: 8,
+    gap: spacing.sm,
+    marginTop: spacing.sm,
   },
   greeting: {
-    fontSize: 18,
+    fontSize: fontSize.xl,
     fontWeight: '500',
+    color: palette.text,
   },
   email: {
-    fontSize: 14,
-    opacity: 0.7,
+    fontSize: fontSize.md,
+    color: palette.textMuted,
   },
   logout: {
-    marginTop: 16,
+    marginTop: spacing.lg,
     borderWidth: 1,
-    borderColor: '#DC2626',
+    borderColor: palette.danger,
     paddingHorizontal: 20,
     paddingVertical: 10,
-    borderRadius: 8,
+    borderRadius: radii.md,
   },
   logoutPressed: {
-    backgroundColor: '#FEE2E2',
+    backgroundColor: palette.dangerBg,
   },
   logoutText: {
-    color: '#DC2626',
+    color: palette.danger,
     fontWeight: '600',
   },
 });
