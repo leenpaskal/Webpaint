@@ -16,5 +16,13 @@
   },
   "devDependencies": {
     "concurrently": "^9.1.0"
+  },
+  "overrides": {
+    "eslint-import-resolver-node": {
+      "resolve": "2.0.0-next.6"
+    },
+    "eslint-plugin-react": {
+      "resolve": "2.0.0-next.6"
+    }
   }
 }
